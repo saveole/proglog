@@ -80,7 +80,7 @@ func (s *store) Read(pos uint64) ([]byte, error) {
 }
 
 func (s *store) ReadAt(p []byte, off int64) (int, error) {
-	s.mu.Unlock()
+	s.mu.Lock()
 	defer s.mu.Unlock()
 	if err := s.buf.Flush(); err != nil {
 		return 0, err
