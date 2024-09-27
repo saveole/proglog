@@ -18,8 +18,8 @@ const (
 
 type store struct {
 	*os.File
-	mu sync.Mutex
-	buf *bufio.Writer
+	mu   sync.Mutex
+	buf  *bufio.Writer
 	size uint64
 }
 
@@ -34,14 +34,15 @@ func newStore(f *os.File) (*store, error) {
 	return &store{
 		File: f,
 		size: size,
-		buf: bufio.NewWriter(f),
+		buf:  bufio.NewWriter(f),
 	}, nil
 }
 
-// p: data tp write.
+// p: data to write.
 // n: number of bytes written.
-// pos: start position of the record,the segment will use this postion 
-//      when it creates an associated index entry for this record.
+// pos: start position of the record,the segment will use this postion
+//
+//	when it creates an associated index entry for this record.
 func (s *store) Append(p []byte) (n uint64, pos uint64, err error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -50,7 +51,7 @@ func (s *store) Append(p []byte) (n uint64, pos uint64, err error) {
 	if err := binary.Write(s.buf, enc, uint64(len(p))); err != nil {
 		return 0, 0, err
 	}
-	// We write to the bufferd writer instead of directly to the file 
+	// We write to the bufferd writer instead of directly to the file
 	// to reduce the number of systen calls and improve performance.
 	w, err := s.buf.Write(p)
 	if err != nil {
